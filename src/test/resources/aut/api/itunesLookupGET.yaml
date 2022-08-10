@@ -1,0 +1,9 @@
+headers:
+  Content-Type: application/json; charset=utf-8
+  Accept: application/json
+  Authorization: N/A
+attributes:
+  host: api-itunes
+  method: GET
+  endpoint: /lookup?id={artistId}
+  payload: N/A

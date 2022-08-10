@@ -1,0 +1,9 @@
+headers:
+  Content-Type: application/json; charset=utf-8
+  Accept: application/json
+  Authorization: Bearer "$(gcloud auth application-default print-access-token)
+attributes:
+  host: api-googleapis
+  method: POST
+  endpoint: /language/translate/v2
+  payload: translatePayload.json
