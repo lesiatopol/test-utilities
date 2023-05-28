@@ -9,10 +9,12 @@
  * All rights reserved
  */
 
-package com.lt.testframework;
+package com.lt.testframework.stepimpl;
 
-import com.lt.testframework.utils.RequestFormatter;
-import com.lt.testframework.utils.RequestMetadata;
+import com.lt.testframework.config.AppContextConfig;
+import com.lt.testframework.datamanager.DataStorage;
+import com.lt.testframework.apimanager.RequestFormatter;
+import com.lt.testframework.apimanager.RequestMetadata;
 import io.cucumber.datatable.DataTable;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.response.Response;
@@ -20,59 +22,68 @@ import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import net.serenitybdd.rest.SerenityRest;
 import net.thucydides.core.annotations.Step;
-import org.junit.Assert;
+
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@ContextConfiguration(classes = {AppContextConfig.class})
 public class APIStepImpl {
     protected static final Logger logger = LoggerFactory.getLogger(APIStepImpl.class);
-    protected static RequestMetadata requestMetadata = null;
-    protected static RequestFormatter requestFormatter = new RequestFormatter();
-    protected static Response response;
-    protected static BaseTest baseTest = BaseTest.getInstance();
+    protected Response response;
+    protected ValidatableResponse validatableResponse = null;
+    @Autowired
+    private RequestFormatter requestFormatter;
+    @Autowired
+    private RequestMetadata requestMetadata;
 
     @Step
-    public static void readRestDefaults(String resourceName) {
-        requestMetadata = requestFormatter.readDefaults(resourceName);
+    public void readRestDefaults(String resourceName) {
+        requestMetadata = requestFormatter.mapRequestDataDefaults(resourceName);
     }
 
     @Step
-    public static void readRestParametrized(String resourceName, DataTable dataTable) {
-        requestMetadata = requestFormatter.readDefaults(resourceName);
-        requestMetadata = requestFormatter.updateREST("endpoint", getDataTable(dataTable));
+    public void customizeRestEndpoint(String resourceName, DataTable dataTable) {
+        requestMetadata = requestFormatter.mapRequestDataDefaults(resourceName);
+        requestMetadata = requestFormatter.customizeRequestData("endpoint", getDataTable(dataTable));
     }
 
     @Step
-    public static void parametrizedRequestBody(DataTable dataTable) {
-        requestMetadata = requestFormatter.updateREST("body", getDataTable(dataTable));
+    public void customizeRestRequestBody(DataTable dataTable) {
+        requestMetadata = requestFormatter.customizeRequestData("body", getDataTable(dataTable));
     }
 
     @Step
-    public static void addHeaders(DataTable dataTable) {
-        requestMetadata = requestFormatter.updateREST("headers", getDataTable(dataTable));
+    public void customizeRestHeaders(DataTable dataTable) {
+        requestMetadata = requestFormatter.customizeRequestData("headers", getDataTable(dataTable));
     }
 
     @Step
-    public static void executeRest() {
+    public void executeRestRequest() {
         try {
-            sendRequest(requestMetadata).log().all().extract().response();
+            validatableResponse = sendRequest(requestMetadata).then().log().all().extract().response().then();
             logger.info("Response Returned in {} sec", response.getTimeIn(TimeUnit.SECONDS));
+            DataStorage.getInstance().setNewData("BODY_TO_VALIDATE", response.getBody().asString());
+            assertNotNull(validatableResponse, "Rest response is null");
         } catch (NullPointerException e) {
             logger.error(Arrays.toString(e.getStackTrace()));
-            Assert.fail("NullPointerException exception occured during fetching response, \nStatus Code : " + response.statusCode());
+            fail("NullPointerException exception occured during fetching response, \nStatus Code : " + response.statusCode());
         } catch (Exception e) {
             logger.error(Arrays.toString(e.getStackTrace()));
-            Assert.fail("NullPointerException exception occured during fetching response \n" + e.getMessage());
+            fail("NullPointerException exception occured during fetching response \n" + e.getMessage());
         }
     }
 
-    private static ValidatableResponse sendRequest(RequestMetadata requestMetadata) {
+    private Response sendRequest(RequestMetadata requestMetadata) {
         logger.info("Sending REST request");
-        ValidatableResponse validatableResponse = null;
         RequestSpecification requestSpecification1 = new RequestSpecBuilder().build();
         try {
             RequestSpecification requestSpecification = SerenityRest.given().relaxedHTTPSValidation()
@@ -94,26 +105,23 @@ public class APIStepImpl {
                     response = requestSpecification.patch(requestMetadata.getEndpoint());
                     break;
                 case "DELETE":
-                    validatableResponse = requestSpecification.delete(requestMetadata.getEndpoint()).then();
+                    response = requestSpecification.delete(requestMetadata.getEndpoint());
                     break;
                 default:
                     logger.info("No REST was invoked, method was undefined");
                     break;
             }
-            if (response != null) {
-                validatableResponse = response.then();
-            }
         } catch (Exception e) {
             logger.info(e.toString());
         }
-        return validatableResponse;
+        return response;
     }
 
     private static Map<String, String> getDataTable(DataTable dataTable) {
         return dataTable.asMap(String.class, String.class);
     }
 
-    public static Response getResponse() {
+    public Response getResponse() {
         return response;
     }
 }

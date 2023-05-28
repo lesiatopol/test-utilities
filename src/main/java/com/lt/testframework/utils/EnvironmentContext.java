@@ -13,36 +13,36 @@ package com.lt.testframework.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.List;
-import java.util.stream.Collectors;
 
+@Component
 public final class EnvironmentContext {
     private static final Logger logger = LoggerFactory.getLogger(EnvironmentContext.class);
-    private static String environment;
+    @Value("${path.to.env.folder}")
+    private String environment;
 
-    private EnvironmentContext() {
-        throw new UnsupportedOperationException("Constructor instantiation is unsupported.");
+    public EnvironmentContext() {
     }
 
-    public static void setEnvironment() {
+    public void setEnvironment() {
         RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
         List<String> arguments = runtimeMxBean.getInputArguments();
         List<String> vmOpt = arguments.stream()
                             .filter(vmOpts -> vmOpts.contains("-Dconf"))
-                            .collect(Collectors.toList());
+                            .toList();
 
         if (!vmOpt.isEmpty()) {
             environment = vmOpt.get(0).substring(vmOpt.get(0).lastIndexOf("=") + 1);
-        } else {
-            environment = "src/test/resources/env/stageconf/";
         }
-        logger.info("Environment - {}", environment);
+        logger.info("Environment under the test- {}", environment);
     }
 
-    public static String getEnvironment() {
+    public String getEnvironment() {
         return environment;
     }
 }

@@ -1,24 +1,25 @@
 # test-utilities  
-> version 1.0
+> version 1.1
 
-This is a working version of test framework for API testing.
+This is a working version of test framework for API testing and AWS services.
 It includes features of API call json body customization, multiple environment support, data storage usage, 
 BDD test features support with serenity test reporting, different test suite strategy via @tag, enables logs for convenient debugging. 
-
+It includes features of AWS services testing like SNS, SQS, Lambda, S3, DynamoDB, Step Function.
+Also Spring Boot framework support is added for easy app context creation, reading properties, supporting jdbc driver to work with PostgresSql DB
 ## Getting started
 
 In order to run project successfully, you need to clone it as Maven project,
-and run com.lt.testframework.testrunner.TestRunner as JUnit configuration.   
+and run com.lt.testframework.starter.AcceptanceTestSuite as JUnit configuration.   
 
-When it is executed you will see 4 cucumber tests marked as @regression from BasicFeatureTests.feature will be run. 
+When it is executed you will see 4 cucumber tests marked as @regression from BasicFeatureRestTests.feature will be run. 
 If you would like to run different set of tests please change @regression tag in TestRunner.java to desired tag (e.g. @TC01 or @negativetest etc.).
 
-After execuyion a Test Summary Report is generated in target folder.  
+After execution a Test Summary Report is generated in target folder.  
 
 ## Development approach
 
 ### Built With
-This framework is based on most popular toools like jUnit, cucumber, json-simple (Google), httpclient (apache). 
+This framework is based on most popular tools like jUnit, cucumber, json-simple (Google), httpclient (apache), AWS java SDK. 
 
 ### Prerequisites
 As prerequisites your machine needs to have java and maven installed.
@@ -28,13 +29,12 @@ Building project is very simple - it is just regular maven commands mvn install,
 
 ## Configuration
 Currently, project support default environment configuration "stageconf".
-it possible to change configuration by adding new package and provide its name as VM options in test configutration. 
-For example, in VM options you can add -Dconf=src/test/resources/env/stageconf/
+it possible to change configuration by adding new package and provide its name as VM options in test configuration. 
+For example, in VM options you can add -Dconf=src/test/resources/env/prodconf/
 
 ## Tests
-All tests are written in BDD format and can be found in BasicFeatureTests.feature
-This feature file has 3 scenarios for API call response validation.
-The 1st scenario is Outline scenario that represents example of multiple data set in one scenario.  
+All tests are written in BDD format and can be found in BasicFeatureRestTests.feature and BasicFeatureAwsTests.feature
+These feature files has multiple examples for API call response validation and working with AWS services as a functional flow validation.
 
 ## Api Reference
 In this test project two open APIs were used to give example of possible tests.

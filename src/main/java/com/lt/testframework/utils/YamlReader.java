@@ -24,20 +24,17 @@ import java.util.Map;
 import static java.util.Objects.requireNonNull;
 
 public class YamlReader {
-
     protected static final Logger logger = LoggerFactory.getLogger(YamlReader.class);
 
     private YamlReader() {
     }
 
-    public static RequestMetadata readYaml(String fileName) throws IOException {
+    public static Map<String, Object> readYaml(String fileName) throws IOException {
         logger.info("Read {}.yaml", fileName);
         InputStream inputStream = new FileInputStream(new File(requireNonNull(YamlReader.class
                 .getClassLoader()
                 .getResource("aut/api/"))
                 .getPath() + fileName + ".yaml"));
-        Yaml yaml = new Yaml();
-        Map<String, Object> data = (Map<String, Object>) yaml.load(inputStream);
-        return new RequestMetadata(data);
+        return (Map<String, Object>) new Yaml().load(inputStream);
     }
 }

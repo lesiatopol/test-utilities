@@ -9,7 +9,7 @@
  * All rights reserved
  */
 
-package com.lt.testframework.testrunner;
+package com.lt.testframework.starter;
 
 import io.cucumber.junit.CucumberOptions;
 import net.serenitybdd.cucumber.CucumberWithSerenity;
@@ -18,11 +18,11 @@ import org.junit.runner.RunWith;
 @RunWith(CucumberWithSerenity.class)
 @CucumberOptions(
         features="src/test/resources/features",
-        glue="com.lt.testframework.steps",
+        glue="com.lt.testframework.stepdefinitions",
         plugin={"pretty", "json:target/reports/executionResults.json"},
         monochrome=true,
         tags="@regression",
         dryRun=false)
-public class TestRunner {
+public class AcceptanceTestSuite {
 
 }

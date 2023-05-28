@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Copyright (c) 2023. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
  * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
  * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
  * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
  * Vestibulum commodo. Ut rhoncus gravida arcu.
  * User: Lesia Topol
- * Date: 7/10/2022
+ * Date: 5/26/2023
  * All rights reserved
  */
 
@@ -30,19 +30,6 @@ public class JsonUtils {
     private static final JSONParser jsonParser = new JSONParser();
 
     private JsonUtils() {
-    }
-
-    public static String readJsonAsString(String jsonFileName) {
-        String payload = null;
-        try {
-            String jsonFilePath = System.getProperty("user.dir") + File.separator + "src" + File.separator + "test"
-                    + File.separator + "resources" + File.separator + "testdata" + File.separator + jsonFileName;
-            payload = FileUtils.readFileToString(new File(jsonFilePath), StandardCharsets.UTF_8);
-            logger.info("Json path {} read operation is success", jsonFilePath);
-        } catch (Exception e) {
-            logger.error(e.toString());
-        }
-        return payload == null ? "" : payload;
     }
 
     public static Object getJsonValue(String jsonAsString, String key) {
@@ -80,11 +67,11 @@ public class JsonUtils {
         try {
             JSONObject jsonObject = (JSONObject) jsonParser.parse(jsonAsString);
             for (Map.Entry<String, String> entry : attributesToUpdate.entrySet()) {
-                String k = entry.getKey();
-                String v = entry.getValue();
-                if (JsonPath.read(jsonObject, k) != null) {
-                    jsonObject = JsonPath.parse(jsonObject).set(k, v).json();
-                    logger.info("Request body was update with - {} = {}", k, v);
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (JsonPath.read(jsonObject, key) != null) {
+                    jsonObject = JsonPath.parse(jsonObject).set(key, value).json();
+                    logger.info("Request body was update with - {} = {}", key, value);
                 }
             }
             return jsonObject.toJSONString();

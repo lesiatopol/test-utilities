@@ -1,0 +1,4 @@
+[default]
+region = east
+output = json
+
